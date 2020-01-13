@@ -258,7 +258,7 @@ public class Gather
     module.addSerializer(new WriterCustomSerializer());
     mapper.registerModule(module);
 
-    Writer out = new PrintWriter("java/giin/test/test.json");
+    Writer out = new PrintWriter("java/giin/test/data.json");
     mapper.writerWithDefaultPrettyPrinter().writeValue(out, reps);
     out.close();
     
