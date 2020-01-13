@@ -261,6 +261,7 @@ public class Gather
     Writer out = new PrintWriter("./test.json");
     mapper.writerWithDefaultPrettyPrinter().writeValue(out, reps);
     out.close();
+    
     }
 }
 
