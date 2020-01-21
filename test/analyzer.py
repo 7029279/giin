@@ -91,12 +91,12 @@ def bio(dimensions, theme, party="all", regions="日本", howmany=5, save=False)
 			ax.set_xlabel('X: k means 2d')
 			ax.set_ylabel('Y: k means 2d')
 			ax.set_zlabel('Z: consequtive election adjusted by age  \n the higher the successful as a politician')
-			ax.text2D(-0.14, 0.95+(1/25),"not enough sample size", color="red",transform=ax.transAxes, size=9)
+			ax.text2D(0.3, 0.5,"not enough sample size", color="red",transform=ax.transAxes, size=25)
 			ax.text2D(0.5, -0.1, "bio-{}dimensions-{}-{}-{}.png".format(dimensions, theme, regions, party), 
 			color="black",transform=ax.transAxes, size=9)	
 
 			if save==True:
-				plt.savefig('plot-images/bio/EMPTY-bio-{}dimensions-{}-{}-{}.png'.format(dimensions, theme, regions, party))
+				plt.savefig('plot-images/bio/EMPTY-bio-{}dimensions-{}-{}-{}.png'.format(dimensions, theme, regions, party), dpi=200)
 			else:
 				plt.show()
 			plt.close()
@@ -327,6 +327,8 @@ def previous():
 		giin["secretary_experi"] = False
 		giin["civil_servant"] = False
 		giin["journalist"] = False
+		giin["lawyer"] = False
+
 
 		for previously in giin["previously"]:
 			if "秘書" in previously:
@@ -335,35 +337,57 @@ def previous():
 				giin["civil_servant"] = True
 			if "記者" in previously or "新聞" in previously:
 				giin["journalist"] = True
+			if "弁護士" in previously:
+				giin["lawyer"] = True
 
-def simpleplot ():
+def simpleplot (xvalue, save):
 	X = []
 	Y = []
 	for giin in read:
 		if giin["name"]  == "stats":
 			continue
-		if giin["postgrad"]  == 0:
-			continue
 		
-		#X.append(giin["poli_edu"])
-		X.append(giin["civil_servant"])
-
-		"""
-		if giin["postgrad"] == True:
-			X.append(1)
-		else:
-			X.append(0)
-		"""
+		X.append(giin[xvalue])
 		Y.append(giin["consequtive_balanced"])
 		
 	res = np.corrcoef(X, Y)
 	if res.tolist()[0][1] == res.tolist()[0][1]:
 		print (res.tolist()[0][1])
+	
+	plt.figure(figsize = (8, 4.8))
 	plt.scatter(X, Y)
-	plt.show()
+	plt.xlabel('{}: true or false'.format(xvalue))
+	plt.ylabel("consequtive election adjusted by age  \n the higher the successful as a politician")
+
+	if xvalue == "postgrad":
+		text="大学院歴　有り無し" 
+	elif xvalue == "poli_edu":
+		text="政治学　勉学経験　有り無し" 
+	elif xvalue == "family_politician":
+		text="親族に政治家　有り無し"
+	elif xvalue == "family_business":
+		text="親族に経営者　有りなし"
+	elif xvalue == "secretary_experi":
+		text="秘書経験　有りなし"		
+	elif xvalue == "civil_servant":
+		text="公務員経験　有りなし"	
+	elif xvalue == "journalist":
+		text="記者経験　有りなし"	
+	elif xvalue == "lawyer":
+		text="弁護士経験　有り無し"
+
+
+	plt.title("x軸：{} 　　　　　 y軸：何回再選してるか".format(text)) 
+	plt.text(0.2, 0.1, "correlation coefficients>>> {}".format(float(str(res.tolist()[0][1])[:6])), size=15)
+
+	if save == False:
+		plt.show()
+	elif save == True:
+		plt.savefig('plot-images/simpleplot/{}.png'.format(xvalue), dpi=200)
+	plt.close()
 	
 		
-def multidiment():
+def multidiment(): ##not used 
 	howmany = 4
 	sets = []
 	for giin in read:
@@ -425,11 +449,16 @@ def main ():
 	with open ("data-mod.json", "w") as f:
 		json.dump(read, f, indent=2, ensure_ascii=False)
 	"""
-	#simpleplot()
-
-	#bio(2, theme="education", regions="中部", party="all", save=True)
 
 	
+	for xvalue in ["postgrad", "poli_edu", 
+	"family_politician", "family_business", 
+	"secretary_experi", "civil_servant", "journalist", "lawyer"]:
+		simpleplot(xvalue=xvalue, save=True)
+	
+	#bio(2, theme="education", regions="中部", party="all", save=True)
+
+	"""
 	for region in ["関東", "近畿", "東北", "九州", "四国", "比例", "中部", "北海道"]:
 		for theme in ["education", "previously", "family"]:
 			bio(2, theme= theme, party="all", regions=region, save=True)
@@ -441,7 +470,7 @@ def main ():
 			
 	for theme in ["education", "previously", "family"]:
 		bio(2, theme=theme, party="all", regions="日本", save=True)
-	
+	"""
 	
 	#### regions = "関東" or "近畿" or "東北" or "九州" or "四国" or "比例" or "中部" or "北海道" default is "日本" 
 	#### party = '自民', '共産', '維新', '公明', '希望', '立国社', '無'
@@ -453,7 +482,7 @@ def main ():
 
 
 	#with open ("data-mod.json", "w") as fwrite:
-	#json.dump(read, fwrite, indent=2, ensure_ascii=False)
+	#	json.dump(read, fwrite, indent=2, ensure_ascii=False)
 
 
 
